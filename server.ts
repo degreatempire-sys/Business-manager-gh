@@ -10242,7 +10242,7 @@ async function startServer() {
         hmr: isHmrDisabled ? false : { server: httpServer },
         watch: isHmrDisabled ? null : {},
       },
-   } else {
+} else {
   const distPath = path.join(process.cwd(), 'dist');
 
   app.get('/manifest.json', (req, res) => {
