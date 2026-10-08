@@ -10243,8 +10243,6 @@ async function startServer() {
         watch: isHmrDisabled ? null : {},
       },
       appType: 'spa',
-    });
-    app.use(vite.middlewares);
   } else {
   const distPath = path.join(process.cwd(), 'dist');
 
