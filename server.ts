@@ -10242,11 +10242,9 @@ async function startServer() {
         hmr: isHmrDisabled ? false : { server: httpServer },
         watch: isHmrDisabled ? null : {},
       },
-      appType: 'spa',
-} else {
+    } else {
   const distPath = path.join(process.cwd(), 'dist');
 
-  // Serve PWA manifest before the SPA fallback
   app.get('/manifest.json', (req, res) => {
     res.type('application/manifest+json');
     res.sendFile(path.join(distPath, 'manifest.json'));
