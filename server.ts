@@ -10246,16 +10246,17 @@ async function startServer() {
     });
     app.use(vite.middlewares);
   } else {
-    const distPath = path.join(process.cwd(), 'dist');
-    app.use(express.static(distPath));
-    app.get('*', (req, res) => {
-      res.sendFile(path.join(distPath, 'index.html'));
-    });
-  }
+  const distPath = path.join(process.cwd(), 'dist');
 
-  httpServer.listen(PORT, '0.0.0.0', () => {
-    console.log(`🚀 Business Manager GH Server active at http://localhost:${PORT}`);
+  // Serve PWA manifest before the SPA fallback
+  app.get('/manifest.json', (req, res) => {
+    res.type('application/manifest+json');
+    res.sendFile(path.join(distPath, 'manifest.json'));
+  });
+
+  app.use(express.static(distPath));
+
+  app.get('*', (req, res) => {
+    res.sendFile(path.join(distPath, 'index.html'));
   });
 }
-
-startServer();
