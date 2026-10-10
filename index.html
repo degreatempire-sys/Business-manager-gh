@@ -3,6 +3,9 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="manifest" href="/manifest.json" />
+<meta name="theme-color" content="#059669" />
+<link rel="icon" href="/icon-192.svg" type="image/svg+xml" />
     <title>Business Manager GH - Small Business Management Platform</title>
     <meta name="description" content="Run Your Business. Track Your Money. Grow With Confidence. Modern business management application for small businesses in Ghana." />
     <meta property="og:title" content="Business Manager GH - Small Business Management Platform" />
@@ -16,6 +19,15 @@
   <body class="bg-slate-900 text-slate-100 antialiased font-sans selection:bg-emerald-500 selection:text-white">
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
+  <script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('/sw.js').catch((error) => {
+        console.error('Service worker registration failed:', error);
+      });
+    });
+  }
+</script>
   </body>
 </html>
 
