@@ -183,6 +183,19 @@ const PORT = 3000;
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
+// Explicit PWA asset routes for production & dev (independent of NODE_ENV)
+app.get('/manifest.json', (req, res) => {
+  res.setHeader('Content-Type', 'application/manifest+json');
+  res.sendFile(path.join(process.cwd(), 'public', 'manifest.json'));
+});
+app.get('/sw.js', (req, res) => {
+  res.setHeader('Content-Type', 'application/javascript');
+  res.sendFile(path.join(process.cwd(), 'public', 'sw.js'));
+});
+app.get(['/icon-192.svg', '/icon-512.svg'], (req, res) => {
+  res.sendFile(path.join(process.cwd(), 'public', req.path));
+});
+
 // Explicitly ensure all /api responses default to application/json
 app.use('/api', (req, res, next) => {
   res.setHeader('Content-Type', 'application/json');
@@ -5903,7 +5916,7 @@ app.post('/api/sales', requireAuth, requirePermission('pos_sales'), (req: Authen
   const netSaleProfit = Math.max(0, totalCalculatedProfit - finalDiscount);
 
   // 3. Payment Method Validation
-  const validPaymentMethods: PaymentMethod[] = ['Cash', 'Mobile Money', 'Bank Transfer', 'Card', 'Credit/Debt'];
+  const validPaymentMethods: PaymentMethod[] = ['Cash', 'Mobile Money', 'Bank Transfer', 'Card', 'Paystack', 'Credit/Debt'];
   const finalPaymentMethod: PaymentMethod = validPaymentMethods.includes(paymentMethod)
     ? paymentMethod
     : 'Cash';
@@ -10242,17 +10255,32 @@ async function startServer() {
         hmr: isHmrDisabled ? false : { server: httpServer },
         watch: isHmrDisabled ? null : {},
       },
-} else {
-  const distPath = path.join(process.cwd(), 'dist');
+      appType: 'spa',
+    });
+    app.use(vite.middlewares);
+  } else {
+    const distPath = path.join(process.cwd(), 'dist');
+    const publicPath = path.join(process.cwd(), 'public');
+    app.get('/manifest.json', (req, res) => {
+      res.setHeader('Content-Type', 'application/manifest+json');
+      res.sendFile(path.join(publicPath, 'manifest.json'));
+    });
+    app.get('/sw.js', (req, res) => {
+      res.setHeader('Content-Type', 'application/javascript');
+      res.sendFile(path.join(publicPath, 'sw.js'));
+    });
+    app.get(['/icon-192.svg', '/icon-512.svg'], (req, res) => {
+      res.sendFile(path.join(publicPath, req.path));
+    });
+    app.use(express.static(distPath));
+    app.get('*', (req, res) => {
+      res.sendFile(path.join(distPath, 'index.html'));
+    });
+  }
 
-  app.get('/manifest.json', (req, res) => {
-    res.type('application/manifest+json');
-    res.sendFile(path.join(distPath, 'manifest.json'));
-  });
-
-  app.use(express.static(distPath));
-
-  app.get('*', (req, res) => {
-    res.sendFile(path.join(distPath, 'index.html'));
+  httpServer.listen(PORT, '0.0.0.0', () => {
+    console.log(`🚀 Business Manager GH Server active at http://localhost:${PORT}`);
   });
 }
+
+startServer();
