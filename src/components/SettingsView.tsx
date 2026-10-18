@@ -127,8 +127,11 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
   initialTab,
   onSettingsUpdated,
 }) => {
-  const { subscription: authSubscription, updateBusinessState, updateUserState, refreshAuth } = useAuth();
-  const isBusinessOwner = user?.role === 'business_owner';
+const { subscription: authSubscription, updateBusinessState, refreshAuth } = useAuth();
+
+const updateUserState = (_updatedUser: User) => {
+  void refreshAuth();
+};  const isBusinessOwner = user?.role === 'business_owner';
   const isStaff = user?.role === 'staff';
 
   const [activeTab, setActiveTab] = useState<'business' | 'account' | 'subscription' | 'audit' | 'staff' | 'governance' | 'whatsapp'>(
